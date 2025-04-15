@@ -1,15 +1,16 @@
-import pyodbc
+import pytds
 from decouple import config
 
 
-class PersysDB:
+class PerssysDB:
     def __init__(self):
-        self.connection = pyodbc.connect(
-            f'DRIVER={{ODBC Driver 17 for SQL Server}};'
-            f'SERVER={{config("DB_SERVER")}};'
-            f'DATABASE={{config("DB_NAME")}};'
-            f'UID={{config("DB_USER")}};'
-            f'PWD={{config("DB_PASSWORD")}}'
+        self.connection = pytds.connect(
+            server=config("DB_SERVER"),
+            port=int(config("DB_PORT")),
+            database=config("DB_NAME"),
+            user=config("DB_USER"),
+            password=config("DB_PASSWORD"),
+            timeout=10
         )
         self.cursor = self.connection.cursor()
 
@@ -17,10 +18,10 @@ class PersysDB:
         query = """
         SELECT 
             [Brugernavn], [Fornavn], [Efternavn], [E-mail adresse], [Telefon, direkte],
-            [Placering, Forkortelse], [Primær title], [Afdeling, Navn],
+            [Placering, Forkortelse], [Primær titel], [Afdeling, Navn],
             [Startdato], [Slutdato], [Primær chef, Navn], [Primær chef, Brugernavn]
-        FROM persys
-        WHERE [Brugernavn] = ?
+        FROM Unord_View
+        WHERE [Brugernavn] = %s
         """
         self.cursor.execute(query, (username,))
         return self.cursor.fetchone()
@@ -29,7 +30,15 @@ class PersysDB:
         query = """
         SELECT 
             [Brugernavn], [Fornavn], [Efternavn], [Afdeling, Navn]
-        FROM persys
+        FROM Unord_View
         """
         self.cursor.execute(query)
         return self.cursor.fetchall()
+
+
+if __name__ == "__main__":
+    try:
+        db = PerssysDB()
+        print("\u2705 Connection successful.")
+    except Exception as e:
+        print("\u274C Connection failed:", e)
