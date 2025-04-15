@@ -1,5 +1,5 @@
-from src.perssys import PerssysDB
-from src.tools import format_user_info, suggest_similar_users, strip_ansi
+from perssys import PerssysDB
+from tools import format_user_info, suggest_similar_users, strip_ansi
 from colorama import Fore, init
 import pyperclip
 
